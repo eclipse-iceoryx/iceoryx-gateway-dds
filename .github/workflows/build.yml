@@ -17,4 +17,4 @@ jobs:
       - name: Install dependencies
         run: sudo apt update && sudo apt install -y libacl1-dev libncurses5-dev
       - name: Build
-        run: cmake -B build && cmake --build build
+        run: cmake -B build && cmake --build build && ./build/dds_gateway_moduletests

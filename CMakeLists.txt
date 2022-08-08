@@ -165,9 +165,7 @@ iox_add_executable(
 #
 ########## build test executables ##########
 #
-if(BUILD_TEST)
-    add_subdirectory(test)
-endif()
+add_subdirectory(test)
 
 if(ICEORYX_WITH_FETCH_CONTENT)
 message("
