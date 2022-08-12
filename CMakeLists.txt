@@ -42,7 +42,7 @@ if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND OR NOT iceoryx_dust_FOUND)
         iceoryx
         GIT_REPOSITORY https://github.com/eclipse-iceoryx/iceoryx.git
         # Recent commit used here to be able to use the CMake macros. Change this to v3.x once released.
-        GIT_TAG be2272fee0b25ce203fa63cc3a93a740baaa4c73
+        GIT_TAG 048bf7d9b44a1b170cb892e2c374b460185e326a
     )
     FetchContent_GetProperties(iceoryx)
     if (NOT iceoryx_POPULATED)
