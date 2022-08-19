@@ -1,0 +1,21 @@
+# This workflow builds the repo
+
+name: Build
+
+# Triggers the workflow on push or pull request events but only for the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main, release* ]
+  workflow_dispatch:
+
+jobs:
+  build-ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y libacl1-dev libncurses5-dev
+      - name: Build
+        run: cmake -DBUILD_TEST=ON -B build && cmake --build build && ./dds_gateway/test/dds_gateway_moduletests
