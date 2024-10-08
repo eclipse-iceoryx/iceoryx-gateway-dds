@@ -83,14 +83,23 @@ endif()
 #
 ########## feature flags ##########
 #
-option(USE_CYCLONE_DDS "Bind to CycloneDDS implementation" ON)
+set(ALLOWED_VALUES CYCLONE_DDS FAST_DDS)
+set(DDS_STACK CYCLONE_DDS CACHE STRING "Activate use of DDS stack")
+set_property(CACHE DDS_STACK PROPERTY STRINGS CYCLONE_DDS FAST_DDS)
+# Check that specified value is allowed
+if(NOT DDS_STACK IN_LIST ALLOWED_VALUES)
+    message(FATAL_ERROR, "Wrong configuration of DDS_STACK. Allowed values: ${ALLOWED_VALUES}")
+endif()
 
-
-if(USE_CYCLONE_DDS)
+if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/cyclonedds ${CMAKE_BINARY_DIR}/dependencies/cyclonedds/prebuild)
     message(INFO " Using CycloneDDS stack")
     find_package(CycloneDDS CONFIG REQUIRED)
     find_package(CycloneDDS-CXX CONFIG REQUIRED)
+elseif(${DDS_STACK} STREQUAL "FAST_DDS")
+    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/fastdds ${CMAKE_BINARY_DIR}/dependencies/fastdds/prebuild)
+    message(INFO " Using FastDDS stack")
+    find_package(fastrtps CONFIG REQUIRED)
 endif()
 
 #
@@ -112,7 +121,7 @@ iox_add_library(
         source/iceoryx_dds/log/logging.cpp
     )
 
-if(USE_CYCLONE_DDS)
+if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
     target_sources(iceoryx_dds
         PRIVATE
         source/iceoryx_dds/dds/cyclone_context.cpp
@@ -149,6 +158,54 @@ if(USE_CYCLONE_DDS)
         PUBLIC
         CycloneDDS-CXX::ddscxx
     )
+elseif(${DDS_STACK} STREQUAL "FAST_DDS")
+    # Generate IDL at configure time
+    set(MESSAGE_DEFINITION_DIR "${CMAKE_CURRENT_SOURCE_DIR}/msg")
+    get_filename_component(MEMPOOL_IDL "${MESSAGE_DEFINITION_DIR}/Mempool.idl" ABSOLUTE)
+
+    find_program(FASTDDS_GEN "fastddsgen")
+    if(NOT FASTDDS_GEN)
+        message(FATAL_ERROR "Could not find program fastddsgen in path")
+    endif()
+
+    add_custom_command(
+        OUTPUT "Mempool.h" "Mempool.cxx" "MempoolPubSubTypes.h" "MempoolPubSubTypes.cxx"
+        COMMAND ${FASTDDS_GEN}
+        ARGS -replace ${MEMPOOL_IDL}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Generating serialization for Mempool bytestream"
+        VERBATIM
+    )
+
+    add_custom_target(mempool_files ALL DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/Mempool.h
+        ${CMAKE_CURRENT_BINARY_DIR}/Mempool.cxx
+        ${CMAKE_CURRENT_BINARY_DIR}/MempoolPubSubTypes.h
+        ${CMAKE_CURRENT_BINARY_DIR}/MempoolPubSubTypes.cxx
+    )
+
+    add_dependencies(iceoryx_dds mempool_files)
+
+    target_sources(iceoryx_dds
+        PRIVATE
+        ${CMAKE_CURRENT_BINARY_DIR}/Mempool.cxx
+        ${CMAKE_CURRENT_BINARY_DIR}/MempoolPubSubTypes.cxx
+        source/iceoryx_dds/dds/fast_context.cpp
+        source/iceoryx_dds/dds/fast_data_reader.cpp
+        source/iceoryx_dds/dds/fast_data_writer.cpp
+        source/iceoryx_dds/dds/iox_chunk_datagram_header.cpp
+    )
+
+    target_include_directories(iceoryx_dds PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}>
+        $<INSTALL_INTERFACE:include/${PREFIX}>
+    )
+
+    target_compile_definitions(iceoryx_dds PUBLIC -DUSE_FAST_DDS)
+    target_link_libraries(iceoryx_dds
+        PUBLIC
+        fastrtps
+    )
 endif()
 
 #
@@ -180,4 +237,3 @@ If you want to use an existing installation use
 #############################################################
 ")
 endif()
-

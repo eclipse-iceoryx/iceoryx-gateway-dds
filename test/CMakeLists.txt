@@ -24,7 +24,17 @@ find_package(GTest CONFIG REQUIRED)
 set(PROJECT_PREFIX "dds_gateway")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${PROJECT_PREFIX}/test)
 
-file(GLOB_RECURSE MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/*.cpp")
+set(MODULETESTS_SRC 
+    "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/main.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_dds_to_iox.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_iox_to_dds.cpp"
+)
+
+if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
+    list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_cyclone_data_reader.cpp")
+elseif(${DDS_STACK} STREQUAL "FAST_DDS")
+    list(APPEND MODULETESTS_SRC "${CMAKE_CURRENT_SOURCE_DIR}/moduletests/test_fast_data_reader.cpp")
+endif()
 
 set(TEST_LINK_LIBS
     ${CODE_COVERAGE_LIBS}
