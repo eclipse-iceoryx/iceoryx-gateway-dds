@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Wei Long Meng. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,9 +23,9 @@
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <string>
 
-iox::dds::FastDataWriter::FastDataWriter(const capro::IdString_t serviceId,
-                                         const capro::IdString_t instanceId,
-                                         const capro::IdString_t eventId) noexcept
+iox::dds::FastDataWriter::FastDataWriter(const capro::IdString_t& serviceId,
+                                         const capro::IdString_t& instanceId,
+                                         const capro::IdString_t& eventId) noexcept
     : m_serviceId(serviceId)
     , m_instanceId(instanceId)
     , m_eventId(eventId)
@@ -42,18 +41,18 @@ iox::dds::FastDataWriter::~FastDataWriter()
     }
     if (m_topic != nullptr)
     {
-        FastContext::getParticipant()->delete_topic(m_topic);
+        FastContext::getInstance().getParticipant()->delete_topic(m_topic);
     }
     if (m_publisher != nullptr)
     {
-        FastContext::getParticipant()->delete_publisher(m_publisher);
+        FastContext::getInstance().getParticipant()->delete_publisher(m_publisher);
     }
     LogDebug() << "[FastDataWriter] Destroyed FastDataWriter.";
 }
 
 void iox::dds::FastDataWriter::connect() noexcept
 {
-    auto participant = FastContext::getParticipant();
+    auto participant = FastContext::getInstance().getParticipant();
     if (participant == nullptr)
     {
         LogError() << "[FastDataWriter] Failed to get participant";
@@ -68,10 +67,10 @@ void iox::dds::FastDataWriter::connect() noexcept
     }
 
     auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
-    m_topic = participant->create_topic(topic, "Mempool::Chunk", eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
+    m_topic = FastContext::getInstance().getTopic(topic);
     if (m_topic == nullptr)
     {
-        LogError() << "[FastDataWriter] Failed to create topic: " << topic;
+        LogError() << "[FastDataReader] Failed to get topic: " << topic;
         return;
     }
 

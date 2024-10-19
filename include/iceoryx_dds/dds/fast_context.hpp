@@ -1,4 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2024 by Wei Long Meng. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,16 +30,29 @@ class FastContext
 {
   public:
     ///
+    /// @brief getInstance Get the DDS Context Instance for the current runtime.
+    /// @return The DDS Context Instance.
+    ///
+    static FastContext& getInstance();
+
+    ///
     /// @brief getParticipant Get the DDS Domain Participant for the current runtime.
     /// @return The DDS Domain Participant.
     ///
-    static eprosima::fastdds::dds::DomainParticipant* getParticipant();
+    eprosima::fastdds::dds::DomainParticipant* getParticipant();
+
+    ///
+    /// @brief getTopic Get the DDS Topic for the current runtime.
+    /// @param[in] serviceId ID of the service
+    /// @return The DDS Topic .
+    ///
+    eprosima::fastdds::dds::Topic* getTopic(const std::string& topicName);
 
   private:
-    static void initialize();
+    FastContext();
 
-    static eprosima::fastdds::dds::DomainParticipant* m_participant;
-    static eprosima::fastdds::dds::TypeSupport m_type;
+    eprosima::fastdds::dds::DomainParticipant* m_participant = nullptr;
+    eprosima::fastdds::dds::TypeSupport m_type;
 };
 
 } // namespace dds

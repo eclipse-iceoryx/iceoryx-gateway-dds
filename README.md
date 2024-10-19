@@ -25,10 +25,10 @@ sudo apt install cmake bison
 ```
 
 ## CMake Build
-You can use the standard iceoryx cmake build approach with an activated `-DDDS_GATEWAY=ON`
-switch.
+You can use the standard iceoryx cmake build approach with an activated `-DDDS_STACK=CYCLONE_DDS`
+or `-DDDS_STACK=FAST_DDS` switch.
 ```sh
-cmake -Bbuild -Hiceoryx_meta -DDDS_GATEWAY=ON
+cmake -Bbuild -DBUILD_TEST=ON -DDDS_STACK=CYCLONE_DDS # DDDS_STACK=FAST_DDS
 cd build
 make
 ```

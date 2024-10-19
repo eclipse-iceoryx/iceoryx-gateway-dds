@@ -1,5 +1,4 @@
-// Copyright (c) 2020 - 2021 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Wei Long Meng. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,9 +35,9 @@ class FastDataWriter : public iox::dds::DataWriter
     /// @param[in] serviceId ID of the service
     /// @param[in] instanceId ID of the instance of the service
     /// @param[in] eventId ID of the event
-    FastDataWriter(const capro::IdString_t serviceId,
-                   const capro::IdString_t instanceId,
-                   const capro::IdString_t eventId) noexcept;
+    FastDataWriter(const capro::IdString_t& serviceId,
+                   const capro::IdString_t& instanceId,
+                   const capro::IdString_t& eventId) noexcept;
 
     virtual ~FastDataWriter();
 

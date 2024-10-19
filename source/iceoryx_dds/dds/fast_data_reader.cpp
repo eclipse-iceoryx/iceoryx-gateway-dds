@@ -1,5 +1,4 @@
-// Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
-// Copyright (c) 2021 by Apex.AI Inc. All rights reserved.
+// Copyright (c) 2024 by Wei Long Meng. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,9 +22,9 @@
 
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
-iox::dds::FastDataReader::FastDataReader(const capro::IdString_t serviceId,
-                                         const capro::IdString_t instanceId,
-                                         const capro::IdString_t eventId) noexcept
+iox::dds::FastDataReader::FastDataReader(const capro::IdString_t& serviceId,
+                                         const capro::IdString_t& instanceId,
+                                         const capro::IdString_t& eventId) noexcept
     : m_serviceId(serviceId)
     , m_instanceId(instanceId)
     , m_eventId(eventId)
@@ -41,7 +40,7 @@ iox::dds::FastDataReader::~FastDataReader()
     }
     if (m_subscriber != nullptr)
     {
-        FastContext::getParticipant()->delete_subscriber(m_subscriber);
+        FastContext::getInstance().getParticipant()->delete_subscriber(m_subscriber);
     }
     LogDebug() << "[FastDataReader] Destroyed FastDataReader.";
 }
@@ -50,7 +49,7 @@ void iox::dds::FastDataReader::connect() noexcept
 {
     if (!m_isConnected.load(std::memory_order_relaxed))
     {
-        auto participant = FastContext::getParticipant();
+        auto participant = FastContext::getInstance().getParticipant();
         if (participant == nullptr)
         {
             LogError() << "[FastDataReader] Failed to get participant";
@@ -59,10 +58,10 @@ void iox::dds::FastDataReader::connect() noexcept
 
         auto topicString =
             "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
-        m_topic = participant->find_topic(topicString, {0, 0});
+        m_topic = FastContext::getInstance().getTopic(topicString);
         if (m_topic == nullptr)
         {
-            LogError() << "[FastDataReader] Failed to find topic: " << topicString;
+            LogError() << "[FastDataReader] Failed to get topic: " << topicString;
             return;
         }
 
