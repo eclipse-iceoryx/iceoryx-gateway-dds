@@ -1,4 +1,5 @@
 // Copyright (c) 2020 by Robert Bosch GmbH. All rights reserved.
+// Copyright (c) 2024 by Wei Long Meng. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +21,9 @@
 #ifdef USE_CYCLONE_DDS
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
+#elif defined USE_FAST_DDS
+#include "iceoryx_dds/dds/fast_data_reader.hpp"
+#include "iceoryx_dds/dds/fast_data_writer.hpp"
 #else
 #error "A DDS implementation must be provided."
 #endif
@@ -32,6 +36,9 @@ namespace dds
 #ifdef USE_CYCLONE_DDS
 using data_reader_t = iox::dds::CycloneDataReader;
 using data_writer_t = iox::dds::CycloneDataWriter;
+#elif defined USE_FAST_DDS
+using data_reader_t = iox::dds::FastDataReader;
+using data_writer_t = iox::dds::FastDataWriter;
 #else
 #error "A DDS implementation must be set."
 #endif
