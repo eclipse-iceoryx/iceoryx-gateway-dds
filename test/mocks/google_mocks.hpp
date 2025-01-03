@@ -21,9 +21,6 @@
 #include "iceoryx_dds/dds/data_reader.hpp"
 #include "iceoryx_dds/dds/data_writer.hpp"
 #include "iceoryx_dds/dds/dds_types.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/function_ref.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_generic.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
@@ -31,6 +28,9 @@
 #include "iceoryx_posh/internal/popo/base_subscriber.hpp"
 #include "iceoryx_posh/popo/publisher_options.hpp"
 #include "iceoryx_posh/popo/subscriber_options.hpp"
+#include "iox/expected.hpp"
+#include "iox/function_ref.hpp"
+#include "iox/optional.hpp"
 #include "test.hpp"
 
 using namespace ::testing;
@@ -39,7 +39,7 @@ using ::testing::_;
 class MockPublisher
 {
   public:
-    MockPublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&){};
+    MockPublisher(const iox::capro::ServiceDescription&, const iox::popo::PublisherOptions&) {};
     virtual ~MockPublisher() = default;
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_METHOD0(offer, void(void));
@@ -51,7 +51,7 @@ class MockPublisher
 class MockSubscriber
 {
   public:
-    MockSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&){};
+    MockSubscriber(const iox::capro::ServiceDescription&, const iox::popo::SubscriberOptions&) {};
     MOCK_CONST_METHOD0(getUid, iox::popo::uid_t());
     MOCK_CONST_METHOD0(getServiceDescription, iox::capro::ServiceDescription());
     MOCK_METHOD0(subscribe, void());
@@ -68,13 +68,13 @@ class MockSubscriber
 class MockDataReader
 {
   public:
-    MockDataReader(const iox::capro::ServiceDescription&){};
+    MockDataReader(const iox::capro::ServiceDescription&) {};
     MOCK_METHOD0(connect, void(void));
-    MOCK_METHOD0(peekNextIoxChunkDatagramHeader, iox::cxx::optional<iox::dds::IoxChunkDatagramHeader>(void));
+    MOCK_METHOD0(peekNextIoxChunkDatagramHeader, iox::optional<iox::dds::IoxChunkDatagramHeader>(void));
     MOCK_METHOD3(takeNext,
-                 iox::cxx::expected<iox::dds::DataReaderError>(const iox::dds::IoxChunkDatagramHeader,
-                                                               uint8_t* const,
-                                                               uint8_t* const));
+                 iox::expected<void, iox::dds::DataReaderError>(const iox::dds::IoxChunkDatagramHeader,
+                                                                uint8_t* const,
+                                                                uint8_t* const));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
     MOCK_CONST_METHOD0(getInstanceId, std::string(void));
     MOCK_CONST_METHOD0(getEventId, std::string(void));
@@ -83,7 +83,7 @@ class MockDataReader
 class MockDataWriter
 {
   public:
-    MockDataWriter(const iox::capro::ServiceDescription&){};
+    MockDataWriter(const iox::capro::ServiceDescription&) {};
     MOCK_METHOD0(connect, void(void));
     MOCK_METHOD3(write, bool(iox::dds::IoxChunkDatagramHeader, const uint8_t* const, const uint8_t* const));
     MOCK_CONST_METHOD0(getServiceId, std::string(void));
@@ -95,15 +95,14 @@ template <typename channel_t, typename IceoryxPubSubOptions>
 class MockGenericGateway
 {
   public:
-    MockGenericGateway(){};
-    MockGenericGateway(const iox::capro::Interfaces, iox::units::Duration, iox::units::Duration){};
+    MockGenericGateway() {};
+    MockGenericGateway(const iox::capro::Interfaces, iox::units::Duration, iox::units::Duration) {};
     MOCK_METHOD1(getCaProMessage, bool(iox::capro::CaproMessage&));
     MOCK_METHOD2_T(addChannel,
-                   iox::cxx::expected<channel_t, iox::gw::GatewayError>(const iox::capro::ServiceDescription&,
-                                                                        const IceoryxPubSubOptions&));
-    MOCK_METHOD1(discardChannel, iox::cxx::expected<iox::gw::GatewayError>(const iox::capro::ServiceDescription&));
-    MOCK_METHOD1_T(findChannel, iox::cxx::optional<channel_t>(const iox::capro::ServiceDescription&));
-    MOCK_METHOD1_T(forEachChannel, void(const iox::cxx::function_ref<void(channel_t&)>));
+                   iox::expected<channel_t, iox::gw::GatewayError>(const iox::capro::ServiceDescription&,
+                                                                   const IceoryxPubSubOptions&));
+    MOCK_METHOD1(discardChannel, iox::expected<void, iox::gw::GatewayError>(const iox::capro::ServiceDescription&));
+    MOCK_METHOD1_T(findChannel, iox::optional<channel_t>(const iox::capro::ServiceDescription&));
 };
 
 #endif // IOX_DDS_GATEWAY_TEST_GOOGLE_MOCKS_HPP
