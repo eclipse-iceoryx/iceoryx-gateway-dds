@@ -68,13 +68,12 @@ void iox::dds::CycloneDataReader::connect() noexcept
     }
 }
 
-iox::cxx::optional<iox::dds::IoxChunkDatagramHeader>
-iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
+iox::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::peekNextIoxChunkDatagramHeader() noexcept
 {
     // ensure to only read sample - do not take
     auto readSamples = m_impl.select().max_samples(1U).state(::dds::sub::status::SampleState::any()).read();
 
-    constexpr iox::cxx::nullopt_t NO_VALID_SAMPLE_AVAILABLE;
+    constexpr iox::nullopt_t NO_VALID_SAMPLE_AVAILABLE;
 
     if (readSamples.length() == 0)
     {
@@ -150,7 +149,7 @@ bool iox::dds::CycloneDataReader::hasSamples() noexcept
     return samples.length() > 0;
 }
 
-iox::cxx::expected<iox::dds::DataReaderError>
+iox::expected<void, iox::dds::DataReaderError>
 iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagramHeader,
                                       uint8_t* const userHeaderBuffer,
                                       uint8_t* const userPayloadBuffer) noexcept
@@ -158,20 +157,18 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     // validation checks
     if (!m_isConnected.load())
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
+        return err(iox::dds::DataReaderError::NOT_CONNECTED);
     }
     // it is assume that peekNextIoxChunkDatagramHeader was called beforehand and that the provided datagramHeader
     // belongs to this sample
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBuffer == nullptr))
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
+        return err(iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
     }
     if (datagramHeader.userPayloadSize > 0 && userPayloadBuffer == nullptr)
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
+        return err(iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
     }
 
     // take next sample and copy into buffer
@@ -179,7 +176,7 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     if (takenSamples.length() == 0)
     {
         // no samples available
-        return iox::cxx::success<>();
+        return ok();
     }
 
     // valid size
@@ -188,11 +185,11 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     auto sampleSize = samplePayload.size();
     if (sampleSize == 0)
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+        return err(iox::dds::DataReaderError::INVALID_DATA);
     }
     if (sampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_SIZE);
+        return err(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_SIZE);
     }
 
     iox::dds::IoxChunkDatagramHeader::Serialized_t serializedDatagramHeader;
@@ -215,7 +212,7 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
     if (bufferSize != dataSize)
     {
         // provided buffer don't match
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::BUFFER_SIZE_MISMATCH);
+        return err(iox::dds::DataReaderError::BUFFER_SIZE_MISMATCH);
     }
 
     // copy data into the provided buffer
@@ -232,7 +229,7 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
         std::memcpy(userPayloadBuffer, userPayloadBytes, datagramHeader.userPayloadSize);
     }
 
-    return iox::cxx::success<>();
+    return ok();
 }
 
 iox::capro::IdString_t iox::dds::CycloneDataReader::getServiceId() const noexcept
