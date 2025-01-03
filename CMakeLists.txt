@@ -61,6 +61,9 @@ if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND OR NOT iceoryx_dust_FOUND)
 endif()
 
 if(ICEORYX_WITH_FETCH_CONTENT)
+    # we do not need to build the examples
+    set(EXAMPLES OFF)
+
     add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_hoofs ${iceoryx_BINARY_DIR}/iceoryx_hoofs)
     add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_dust  ${iceoryx_BINARY_DIR}/iceoryx_dust)
     add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_posh  ${iceoryx_BINARY_DIR}/iceoryx_posh)
@@ -227,7 +230,9 @@ iox_add_executable(
 #
 ########## build test executables ##########
 #
-add_subdirectory(test)
+if(BUILD_TEST)
+    add_subdirectory(test)
+endif()
 
 if(ICEORYX_WITH_FETCH_CONTENT)
 message("
