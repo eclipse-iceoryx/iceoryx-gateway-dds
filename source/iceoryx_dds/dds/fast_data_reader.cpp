@@ -99,9 +99,9 @@ void iox::dds::FastDataReader::connect() noexcept
     }
 }
 
-iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::peekNextIoxChunkDatagramHeader() noexcept
+iox::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::peekNextIoxChunkDatagramHeader() noexcept
 {
-    constexpr iox::cxx::nullopt_t NO_VALID_SAMPLE_AVAILABLE;
+    constexpr iox::nullopt_t NO_VALID_SAMPLE_AVAILABLE;
 
     FASTDDS_CONST_SEQUENCE(DataSeq, Mempool::Chunk);
 
@@ -218,7 +218,7 @@ bool iox::dds::FastDataReader::hasSamples() noexcept
     return m_reader->get_first_untaken_info(&info) == eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK;
 }
 
-iox::cxx::expected<iox::dds::DataReaderError>
+iox::expected<void, iox::dds::DataReaderError>
 iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagramHeader,
                                    uint8_t* const userHeaderBuffer,
                                    uint8_t* const userPayloadBuffer) noexcept
@@ -226,19 +226,19 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     // validation checks
     if (!m_isConnected.load())
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::NOT_CONNECTED);
+        return err(iox::dds::DataReaderError::NOT_CONNECTED);
     }
     // it is assume that peekNextIoxChunkDatagramHeader was called beforehand and that the provided datagramHeader
     // belongs to this sample
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBuffer == nullptr))
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(
+        return err(
             iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
     }
     if (datagramHeader.userPayloadSize > 0 && userPayloadBuffer == nullptr)
     {
-        return iox::cxx::error<iox::dds::DataReaderError>(
+        return err(
             iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
     }
 
@@ -251,7 +251,7 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     if (ret != eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK)
     {
         // no samples available
-        return iox::cxx::success<>();
+        return ok();
     }
 
     auto returnSample = [&] { m_reader->return_loan(dataSeq, infoSeq); };
@@ -260,13 +260,13 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     {
         returnSample();
         // no samples available
-        return iox::cxx::success<>();
+        return ok();
     }
 
     if (!infoSeq[0].valid_data)
     {
         returnSample();
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+        return err(iox::dds::DataReaderError::INVALID_DATA);
     }
 
     // valid size
@@ -276,12 +276,12 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     if (sampleSize == 0)
     {
         returnSample();
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATA);
+        return err(iox::dds::DataReaderError::INVALID_DATA);
     }
     if (sampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
         returnSample();
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_SIZE);
+        return err(iox::dds::DataReaderError::INVALID_DATAGRAM_HEADER_SIZE);
     }
 
     iox::dds::IoxChunkDatagramHeader::Serialized_t serializedDatagramHeader;
@@ -305,7 +305,7 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     {
         returnSample();
         // provided buffer don't match
-        return iox::cxx::error<iox::dds::DataReaderError>(iox::dds::DataReaderError::BUFFER_SIZE_MISMATCH);
+        return err(iox::dds::DataReaderError::BUFFER_SIZE_MISMATCH);
     }
 
     // copy data into the provided buffer
@@ -323,7 +323,7 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     }
 
     returnSample();
-    return iox::cxx::success<>();
+    return ok();
 }
 
 iox::capro::IdString_t iox::dds::FastDataReader::getServiceId() const noexcept

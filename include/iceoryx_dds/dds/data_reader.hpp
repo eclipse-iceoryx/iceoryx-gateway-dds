@@ -19,9 +19,9 @@
 #define IOX_DDS_DDS_DATA_READER_HPP
 
 #include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/iceoryx_posh_types.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 namespace iox
 {
@@ -53,7 +53,7 @@ class DataReader
 
     /// @brief peekNextIoxChunkDatagramHeader Get the IoxChunkDatagramHeader of the next sample if one is available.
     /// @return The IoxChunkDatagramHeader of the next sample if one is available.
-    virtual iox::cxx::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept = 0;
+    virtual iox::optional<IoxChunkDatagramHeader> peekNextIoxChunkDatagramHeader() noexcept = 0;
 
     /// @brief Checks if new samples are ready to take.
     /// @return True if new samples are available.
@@ -64,9 +64,9 @@ class DataReader
     /// @param userHeaderBuffer buffer for the user-header
     /// @param userPayloadBuffer buffer for the user-payload
     /// @return Error if unsuccessful.
-    virtual iox::cxx::expected<DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
-                                                         uint8_t* const userHeaderBuffer,
-                                                         uint8_t* const userPayloadBuffer) noexcept = 0;
+    virtual iox::expected<void, DataReaderError> takeNext(const IoxChunkDatagramHeader datagramHeader,
+                                                          uint8_t* const userHeaderBuffer,
+                                                          uint8_t* const userPayloadBuffer) noexcept = 0;
 
     /// @brief get ID of the service
     virtual capro::IdString_t getServiceId() const noexcept = 0;
