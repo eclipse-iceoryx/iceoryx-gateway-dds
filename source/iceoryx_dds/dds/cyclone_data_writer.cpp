@@ -18,8 +18,8 @@
 #include "iceoryx_dds/dds/cyclone_data_writer.hpp"
 #include "Mempool.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/logging.hpp"
 
 #include <string>
 
@@ -30,7 +30,7 @@ iox::dds::CycloneDataWriter::CycloneDataWriter(const capro::IdString_t serviceId
     , m_instanceId(instanceId)
     , m_eventId(eventId)
 {
-    LogDebug() << "[CycloneDataWriter] Created CycloneDataWriter.";
+    IOX_LOG(DEBUG, "[CycloneDataWriter] Created CycloneDataWriter.");
 }
 
 iox::dds::CycloneDataWriter::~CycloneDataWriter()
@@ -38,7 +38,7 @@ iox::dds::CycloneDataWriter::~CycloneDataWriter()
     m_writer.close();
     m_topic.close();
     m_publisher.close();
-    LogDebug() << "[CycloneDataWriter] Destroyed CycloneDataWriter.";
+    IOX_LOG(DEBUG, "[CycloneDataWriter] Destroyed CycloneDataWriter.");
 }
 
 void iox::dds::CycloneDataWriter::connect() noexcept
@@ -47,7 +47,7 @@ void iox::dds::CycloneDataWriter::connect() noexcept
     auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
     m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topic);
     m_writer = ::dds::pub::DataWriter<Mempool::Chunk>(m_publisher, m_topic);
-    LogDebug() << "[CycloneDataWriter] Connected to topic: " << topic;
+    IOX_LOG(DEBUG, "[CycloneDataWriter] Connected to topic: " << topic);
 }
 
 void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHeader,
@@ -57,12 +57,12 @@ void iox::dds::CycloneDataWriter::write(iox::dds::IoxChunkDatagramHeader datagra
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBytes == nullptr))
     {
-        LogError() << "[CycloneDataWriter] invalid user-header parameter! Dropping chunk!";
+        IOX_LOG(ERROR, "[CycloneDataWriter] invalid user-header parameter! Dropping chunk!");
         return;
     }
     if (datagramHeader.userPayloadSize > 0 && userPayloadBytes == nullptr)
     {
-        LogError() << "[CycloneDataWriter] invalid user-payload parameter! Dropping chunk!";
+        IOX_LOG(ERROR, "[CycloneDataWriter] invalid user-payload parameter! Dropping chunk!");
         return;
     }
 

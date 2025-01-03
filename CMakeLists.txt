@@ -121,8 +121,6 @@ iox_add_library(
                             iceoryx_posh::iceoryx_posh_config
                             iceoryx_posh::iceoryx_posh_gateway
                             iceoryx_hoofs::iceoryx_hoofs
-    FILES
-        source/iceoryx_dds/log/logging.cpp
     )
 
 if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
@@ -161,6 +159,7 @@ if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
     target_link_libraries(iceoryx_dds
         PUBLIC
         CycloneDDS-CXX::ddscxx
+        iceoryx_hoofs::iceoryx_hoofs
     )
 elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     # Generate IDL at configure time
@@ -209,6 +208,7 @@ elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     target_link_libraries(iceoryx_dds
         PUBLIC
         fastrtps
+        iceoryx_hoofs::iceoryx_hoofs
     )
 endif()
 
