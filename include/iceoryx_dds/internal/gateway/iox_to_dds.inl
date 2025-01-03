@@ -129,7 +129,7 @@ inline void Iceoryx2DDSGateway<channel_t, gateway_t>::forward(const channel_t& c
 // ======================================== Private ======================================== //
 
 template <typename channel_t, typename gateway_t>
-cxx::expected<channel_t, gw::GatewayError>
+expected<channel_t, gw::GatewayError>
 Iceoryx2DDSGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
                                                        const popo::SubscriberOptions& subscriberOptions) noexcept
 {

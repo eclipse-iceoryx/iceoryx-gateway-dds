@@ -15,7 +15,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
 #include "iox/assertions.hpp"
 
 namespace iox

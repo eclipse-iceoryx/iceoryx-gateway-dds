@@ -17,14 +17,13 @@
 
 #include "iceoryx_dds/gateway/dds_to_iox.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
-#include "iceoryx_dust/posix_wrapper/signal_watcher.hpp"
-#include "iceoryx_hoofs/cxx/helplets.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
-#include "iceoryx_hoofs/platform/signal.hpp"
+#include "iceoryx_platform/signal.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/gateway/toml_gateway_config_parser.hpp"
 #include "iceoryx_posh/runtime/posh_runtime.hpp"
 #include "iox/logging.hpp"
+#include "iox/optional.hpp"
+#include "iox/signal_watcher.hpp"
 
 int main()
 {
@@ -52,7 +51,7 @@ int main()
     dds2ioxGateway.runMultithreaded();
 
     // Run until SIGINT or SIGTERM
-    iox::posix::waitForTerminationRequest();
+    iox::waitForTerminationRequest();
 
     return 0;
 }
