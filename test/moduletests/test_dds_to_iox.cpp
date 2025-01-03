@@ -56,7 +56,7 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
     stageMockDDSTerminal(std::move(mockDataReader));
 
     TestGateway gw{};
-    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::nullopt));
     EXPECT_CALL(gw, addChannel(testService, _))
         .WillOnce(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 
@@ -77,8 +77,8 @@ TEST_F(DDS2IceoryxGatewayTest, PublishesMemoryChunksContainingSamplesToNetwork)
     auto mockPublisher = createMockIceoryxTerminal(testService);
 
     ON_CALL(*mockDataReader, peekNextSize)
-        .WillByDefault(Return(ByMove(iox::cxx::make_optional<uint64_t>(static_cast<uint64_t>(8u)))));
-    ON_CALL(*mockDataReader, takeNext).WillByDefault(Return(ByMove(iox::cxx::success<>())));
+        .WillByDefault(Return(ByMove(iox::make_optional<uint64_t>(static_cast<uint64_t>(8u)))));
+    ON_CALL(*mockDataReader, takeNext).WillByDefault(Return(ByMove(iox::ok())));
     EXPECT_CALL(*mockPublisher, sendChunk).Times(1);
 
     stageMockDDSTerminal(std::move(mockDataReader));
