@@ -16,6 +16,7 @@
 
 #include "iceoryx_dds/dds/iox_chunk_datagram_header.hpp"
 #include "iceoryx_hoofs/cxx/helplets.hpp"
+#include "iox/assertions.hpp"
 
 namespace iox
 {
@@ -61,7 +62,7 @@ IoxChunkDatagramHeader::Serialized_t IoxChunkDatagramHeader::serialize(const Iox
     auto successfullyPushed =
         serializedDatagram.emplace_back(static_cast<uint8_t>(datagramHeader.userPayloadAlignment & 0xFF));
 
-    iox::cxx::Ensures(successfullyPushed && "Expected to successfully serialize IoxChunkDatagramHeader!");
+    IOX_ENFORCE(successfullyPushed, "Expected to successfully serialize IoxChunkDatagramHeader!");
 
     return serializedDatagram;
 }
@@ -69,7 +70,7 @@ IoxChunkDatagramHeader::Serialized_t IoxChunkDatagramHeader::serialize(const Iox
 IoxChunkDatagramHeader
 IoxChunkDatagramHeader::deserialize(const IoxChunkDatagramHeader::Serialized_t& serializedDatagramHeader)
 {
-    iox::cxx::Expects(serializedDatagramHeader.size() == 16U && "Expects valid IoxChunkDatagramHeader serialization!");
+    IOX_ENFORCE(serializedDatagramHeader.size() == 16U, "Expects valid IoxChunkDatagramHeader serialization!");
 
     IoxChunkDatagramHeader datagramHeader;
 
