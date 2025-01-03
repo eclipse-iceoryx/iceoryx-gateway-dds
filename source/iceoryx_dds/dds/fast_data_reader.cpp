@@ -20,6 +20,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/assertions.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
@@ -57,8 +58,8 @@ void iox::dds::FastDataReader::connect() noexcept
             return;
         }
 
-        auto topicString =
-            "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+        auto topicString = "/" + into<std::string>(m_serviceId) + "/" + into<std::string>(m_instanceId) + "/"
+                           + into<std::string>(m_eventId);
         m_topic = FastContext::getInstance().getTopic(topicString);
         if (m_topic == nullptr)
         {
@@ -233,13 +234,11 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBuffer == nullptr))
     {
-        return err(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
+        return err(iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_HEADER);
     }
     if (datagramHeader.userPayloadSize > 0 && userPayloadBuffer == nullptr)
     {
-        return err(
-            iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
+        return err(iox::dds::DataReaderError::INVALID_BUFFER_PARAMETER_FOR_USER_PAYLOAD);
     }
 
     // take next sample and copy into buffer

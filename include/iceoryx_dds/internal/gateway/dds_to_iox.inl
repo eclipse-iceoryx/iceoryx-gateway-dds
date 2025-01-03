@@ -19,9 +19,9 @@
 #define IOX_DDS_DDS_TO_IOX_INL
 
 #include "iceoryx_dds/dds/dds_config.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
 #include "iox/logging.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {

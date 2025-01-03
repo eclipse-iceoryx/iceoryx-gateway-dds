@@ -20,6 +20,7 @@
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/assertions.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId,
                                                const capro::IdString_t instanceId,
@@ -40,8 +41,8 @@ void iox::dds::CycloneDataReader::connect() noexcept
 {
     if (!m_isConnected.load(std::memory_order_relaxed))
     {
-        auto topicString =
-            "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+        auto topicString = "/" + into<std::string>(m_serviceId) + "/" + into<std::string>(m_instanceId) + "/"
+                           + into<std::string>(m_eventId);
         auto topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topicString);
         auto subscriber = ::dds::sub::Subscriber(CycloneContext::getParticipant());
 

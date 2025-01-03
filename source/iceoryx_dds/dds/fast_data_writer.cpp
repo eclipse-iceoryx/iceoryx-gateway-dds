@@ -19,6 +19,7 @@
 #include "iceoryx_dds/dds/fast_context.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <fastdds/dds/publisher/Publisher.hpp>
 #include <string>
@@ -66,7 +67,8 @@ void iox::dds::FastDataWriter::connect() noexcept
         return;
     }
 
-    auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+    auto topic = "/" + into<std::string>(m_serviceId) + "/" + into<std::string>(m_instanceId) + "/"
+                 + into<std::string>(m_eventId);
     m_topic = FastContext::getInstance().getTopic(topic);
     if (m_topic == nullptr)
     {
