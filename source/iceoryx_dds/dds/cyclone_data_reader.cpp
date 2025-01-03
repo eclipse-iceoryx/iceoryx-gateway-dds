@@ -18,6 +18,7 @@
 #include "iceoryx_dds/dds/cyclone_data_reader.hpp"
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 
 iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId,
@@ -202,10 +203,11 @@ iox::dds::CycloneDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader dat
 
     auto actualDatagramHeader = iox::dds::IoxChunkDatagramHeader::deserialize(serializedDatagramHeader);
 
-    iox::cxx::Ensures(datagramHeader.userHeaderId == actualDatagramHeader.userHeaderId);
-    iox::cxx::Ensures(datagramHeader.userHeaderSize == actualDatagramHeader.userHeaderSize);
-    iox::cxx::Ensures(datagramHeader.userPayloadSize == actualDatagramHeader.userPayloadSize);
-    iox::cxx::Ensures(datagramHeader.userPayloadAlignment == actualDatagramHeader.userPayloadAlignment);
+    IOX_ENFORCE(datagramHeader.userHeaderId == actualDatagramHeader.userHeaderId, "Invalid user header ID");
+    IOX_ENFORCE(datagramHeader.userHeaderSize == actualDatagramHeader.userHeaderSize, "Invalid user header size");
+    IOX_ENFORCE(datagramHeader.userPayloadSize == actualDatagramHeader.userPayloadSize, "Invalid payload");
+    IOX_ENFORCE(datagramHeader.userPayloadAlignment == actualDatagramHeader.userPayloadAlignment,
+                "Invalid payload alignment");
 
     auto dataSize = sampleSize - sizeof(iox::dds::IoxChunkDatagramHeader);
     auto bufferSize = datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;

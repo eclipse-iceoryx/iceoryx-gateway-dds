@@ -18,6 +18,7 @@
 #include "Mempool.h"
 #include "iceoryx_dds/dds/fast_context.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/assertions.hpp"
 #include "iox/logging.hpp"
 
 #include <fastdds/dds/subscriber/Subscriber.hpp>
@@ -291,10 +292,11 @@ iox::dds::FastDataReader::takeNext(const iox::dds::IoxChunkDatagramHeader datagr
 
     auto actualDatagramHeader = iox::dds::IoxChunkDatagramHeader::deserialize(serializedDatagramHeader);
 
-    iox::cxx::Ensures(datagramHeader.userHeaderId == actualDatagramHeader.userHeaderId);
-    iox::cxx::Ensures(datagramHeader.userHeaderSize == actualDatagramHeader.userHeaderSize);
-    iox::cxx::Ensures(datagramHeader.userPayloadSize == actualDatagramHeader.userPayloadSize);
-    iox::cxx::Ensures(datagramHeader.userPayloadAlignment == actualDatagramHeader.userPayloadAlignment);
+    IOX_ENFORCE(datagramHeader.userHeaderId == actualDatagramHeader.userHeaderId, "Invalid user header ID");
+    IOX_ENFORCE(datagramHeader.userHeaderSize == actualDatagramHeader.userHeaderSize, "Invalid user header size");
+    IOX_ENFORCE(datagramHeader.userPayloadSize == actualDatagramHeader.userPayloadSize, "Invalid payload size");
+    IOX_ENFORCE(datagramHeader.userPayloadAlignment == actualDatagramHeader.userPayloadAlignment,
+                "Invalid payload alignment");
 
     auto dataSize = sampleSize - sizeof(iox::dds::IoxChunkDatagramHeader);
     auto bufferSize = datagramHeader.userHeaderSize + datagramHeader.userPayloadSize;
