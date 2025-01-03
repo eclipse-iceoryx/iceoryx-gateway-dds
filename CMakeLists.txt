@@ -19,20 +19,20 @@
 cmake_minimum_required(VERSION 3.16)
 
 # check if iceoryx is in CMAKE_PREFIX_PATH
+find_package(iceoryx_platform QUIET)
 find_package(iceoryx_hoofs QUIET)
-find_package(iceoryx_dust QUIET)
 find_package(iceoryx_posh QUIET)
 
 # Link iceoryx_hoofs and iceoryx_posh libraries statically
 option(BUILD_SHARED_LIBS "Link libraries dynamically" OFF)
 
 # fetch iceoryx if not found
-if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND OR NOT iceoryx_dust_FOUND)
+if(NOT iceoryx_platform_FOUND OR NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND)
+    if(iceoryx_platform_FOUND)
+        message(FATAL_ERROR "iceoryx_platform was not found with 'find_package' but other parts were found!")
+    endif()
     if(iceoryx_hoofs_FOUND)
         message(FATAL_ERROR "iceoryx_hoofs was not found with 'find_package' but other parts were found!")
-    endif()
-    if(iceoryx_dust_FOUND)
-        message(FATAL_ERROR "iceoryx_dust was not found with 'find_package' but other parts were found!")
     endif()
     if(iceoryx_posh_FOUND)
         message(FATAL_ERROR "iceoryx_posh was not found with 'find_package' but other parts were found!")
@@ -43,7 +43,7 @@ if(NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND OR NOT iceoryx_dust_FOUND)
         iceoryx
         GIT_REPOSITORY https://github.com/eclipse-iceoryx/iceoryx.git
         # Recent commit used here to be able to use the CMake macros. Change this to v3.x once released.
-        GIT_TAG 048bf7d9b44a1b170cb892e2c374b460185e326a
+        GIT_TAG v2.95.3
     )
     FetchContent_GetProperties(iceoryx)
     if (NOT iceoryx_POPULATED)
@@ -64,12 +64,12 @@ if(ICEORYX_WITH_FETCH_CONTENT)
     # we do not need to build the examples
     set(EXAMPLES OFF)
 
+    add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_platform ${iceoryx_BINARY_DIR}/iceoryx_platform)
     add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_hoofs ${iceoryx_BINARY_DIR}/iceoryx_hoofs)
-    add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_dust  ${iceoryx_BINARY_DIR}/iceoryx_dust)
     add_subdirectory(${iceoryx_SOURCE_DIR}/iceoryx_posh  ${iceoryx_BINARY_DIR}/iceoryx_posh)
     
+    find_package(iceoryx_platform REQUIRED)
     find_package(iceoryx_hoofs REQUIRED)
-    find_package(iceoryx_dust REQUIRED)
     find_package(iceoryx_posh REQUIRED)
 endif()
 
