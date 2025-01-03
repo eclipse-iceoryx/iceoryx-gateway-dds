@@ -56,7 +56,7 @@ TEST_F(DDS2IceoryxGatewayTest, ChannelsAreCreatedForConfiguredServices)
     stageMockDDSTerminal(std::move(mockDataReader));
 
     TestGateway gw{};
-    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, findChannel).WillOnce(Return(iox::nullopt));
     EXPECT_CALL(gw, addChannel(testService, _))
         .WillOnce(Return(channelFactory(testService, iox::popo::PublisherOptions())));
 

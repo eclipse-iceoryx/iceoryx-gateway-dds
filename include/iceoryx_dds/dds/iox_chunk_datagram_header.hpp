@@ -17,7 +17,7 @@
 #ifndef IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 #define IOX_DDS_DDS_IOX_CHUNK_DATAGRAM_HEADER_HPP
 
-#include "iceoryx_hoofs/cxx/vector.hpp"
+#include "iox/vector.hpp"
 
 #include <cstdint>
 
@@ -42,7 +42,7 @@ Endianess getEndianess();
 /// @brief The datagram header with chunk metadata for user-header and user-payload
 struct IoxChunkDatagramHeader
 {
-    using Serialized_t = iox::cxx::vector<uint8_t, 16U>;
+    using Serialized_t = iox::vector<uint8_t, 16U>;
 
     /// @brief Serializes a IoxChunkDatagramHeader into a vector of uint8_t
     /// @param[in] datagramHeader to serialize
@@ -67,7 +67,7 @@ struct IoxChunkDatagramHeader
     Endianess endianness{Endianess::UNDEFINED};
     uint16_t userHeaderId{0xFFFF};
     uint32_t userHeaderSize{0U};
-    uint32_t userPayloadSize{0U};
+    uint64_t userPayloadSize{0U};
     uint32_t userPayloadAlignment{0U};
 };
 
