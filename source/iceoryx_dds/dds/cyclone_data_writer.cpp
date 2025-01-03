@@ -20,6 +20,7 @@
 #include "iceoryx_dds/dds/cyclone_context.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
 #include "iox/logging.hpp"
+#include "iox/std_string_support.hpp"
 
 #include <string>
 
@@ -44,7 +45,8 @@ iox::dds::CycloneDataWriter::~CycloneDataWriter()
 void iox::dds::CycloneDataWriter::connect() noexcept
 {
     m_publisher = ::dds::pub::Publisher(CycloneContext::getParticipant());
-    auto topic = "/" + std::string(m_serviceId) + "/" + std::string(m_instanceId) + "/" + std::string(m_eventId);
+    auto topic = "/" + into<std::string>(m_serviceId) + "/" + into<std::string>(m_instanceId) + "/"
+                 + into<std::string>(m_eventId);
     m_topic = ::dds::topic::Topic<Mempool::Chunk>(CycloneContext::getParticipant(), topic);
     m_writer = ::dds::pub::DataWriter<Mempool::Chunk>(m_publisher, m_topic);
     IOX_LOG(DEBUG, "[CycloneDataWriter] Connected to topic: " << topic);
