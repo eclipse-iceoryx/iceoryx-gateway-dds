@@ -17,8 +17,8 @@
 #include "iceoryx_dds/dds/fast_data_reader.hpp"
 #include "Mempool.h"
 #include "iceoryx_dds/dds/fast_context.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/logging.hpp"
 
 #include <fastdds/dds/subscriber/Subscriber.hpp>
 
@@ -29,7 +29,7 @@ iox::dds::FastDataReader::FastDataReader(const capro::IdString_t& serviceId,
     , m_instanceId(instanceId)
     , m_eventId(eventId)
 {
-    LogDebug() << "[FastDataReader] Created FastDataReader.";
+    IOX_LOG(DEBUG, "[FastDataReader] Created FastDataReader.");
 }
 
 iox::dds::FastDataReader::~FastDataReader()
@@ -42,7 +42,7 @@ iox::dds::FastDataReader::~FastDataReader()
     {
         FastContext::getInstance().getParticipant()->delete_subscriber(m_subscriber);
     }
-    LogDebug() << "[FastDataReader] Destroyed FastDataReader.";
+    IOX_LOG(DEBUG, "[FastDataReader] Destroyed FastDataReader.");
 }
 
 void iox::dds::FastDataReader::connect() noexcept
@@ -52,7 +52,7 @@ void iox::dds::FastDataReader::connect() noexcept
         auto participant = FastContext::getInstance().getParticipant();
         if (participant == nullptr)
         {
-            LogError() << "[FastDataReader] Failed to get participant";
+            IOX_LOG(ERROR, "[FastDataReader] Failed to get participant");
             return;
         }
 
@@ -61,14 +61,14 @@ void iox::dds::FastDataReader::connect() noexcept
         m_topic = FastContext::getInstance().getTopic(topicString);
         if (m_topic == nullptr)
         {
-            LogError() << "[FastDataReader] Failed to get topic: " << topicString;
+            IOX_LOG(ERROR, "[FastDataReader] Failed to get topic: " << topicString);
             return;
         }
 
         m_subscriber = participant->create_subscriber(eprosima::fastdds::dds::SUBSCRIBER_QOS_DEFAULT);
         if (m_subscriber == nullptr)
         {
-            LogError() << "[FastDataReader] Failed to create subscriber";
+            IOX_LOG(ERROR, "[FastDataReader] Failed to create subscriber");
             return;
         }
 
@@ -88,11 +88,11 @@ void iox::dds::FastDataReader::connect() noexcept
         m_reader = m_subscriber->create_datareader(m_topic, qos);
         if (m_reader == nullptr)
         {
-            LogError() << "[FastDataReader] Failed to create datareader";
+            IOX_LOG(ERROR, "[FastDataReader] Failed to create datareader");
             return;
         }
 
-        LogDebug() << "[FastDataReader] Connected to topic: " << topicString;
+        IOX_LOG(DEBUG, "[FastDataReader] Connected to topic: " << topicString);
 
         m_isConnected.store(true, std::memory_order_relaxed);
     }
@@ -111,7 +111,7 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::p
     auto ret = m_reader->read(dataSeq, infoSeq, 1);
     if (ret != eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK)
     {
-        LogError() << "[FastDataReader] Failed to read sample, return code: " << ret();
+        IOX_LOG(ERROR, "[FastDataReader] Failed to read sample, return code: " << ret());
         return NO_VALID_SAMPLE_AVAILABLE;
     }
 
@@ -120,21 +120,21 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::p
         auto ret = m_reader->return_loan(dataSeq, infoSeq);
         if (ret != eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK)
         {
-            LogError() << "[FastDataReader] Failed to return loan, return code: " << ret();
+            IOX_LOG(ERROR, "[FastDataReader] Failed to return loan, return code: " << ret());
             return NO_VALID_SAMPLE_AVAILABLE;
         }
 
         ret = m_reader->take(dataSeq, infoSeq, 1);
         if (ret != eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK)
         {
-            LogError() << "[FastDataReader] Failed to take sample, return code: " << ret();
+            IOX_LOG(ERROR, "[FastDataReader] Failed to take sample, return code: " << ret());
             return NO_VALID_SAMPLE_AVAILABLE;
         }
 
         ret = m_reader->return_loan(dataSeq, infoSeq);
         if (ret != eprosima::fastrtps::types::ReturnCode_t::RETCODE_OK)
         {
-            LogError() << "[FastDataReader] Failed to return loan, return code: " << ret();
+            IOX_LOG(ERROR, "[FastDataReader] Failed to return loan, return code: " << ret());
             return NO_VALID_SAMPLE_AVAILABLE;
         }
 
@@ -143,13 +143,13 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::p
 
     if (infoSeq.length() == 0)
     {
-        LogError() << "[FastDataReader] received no sample! Dropped sample!";
+        IOX_LOG(ERROR, "[FastDataReader] received no sample! Dropped sample!");
         return dropSample();
     }
 
     if (!infoSeq[0].valid_data)
     {
-        LogError() << "[FastDataReader] received invalid sample! Dropped sample!";
+        IOX_LOG(ERROR, "[FastDataReader] received invalid sample! Dropped sample!");
         return dropSample();
     }
 
@@ -160,21 +160,24 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::p
     // Ignore samples with no payload
     if (nextSampleSize == 0)
     {
-        LogError() << "[FastDataReader] received sample with size zero! Dropped sample!";
+        IOX_LOG(ERROR, "[FastDataReader] received sample with size zero! Dropped sample!");
         return dropSample();
     }
 
     // Ignore Invalid IoxChunkDatagramHeader
     if (nextSampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        auto log = LogError();
-        log << "[FastDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
-            << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
-        if (nextSampleSize >= 1)
-        {
-            log << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
-                << "! Dropped sample!";
-        }
+        IOX_LOG(ERROR, [&](auto& log) -> auto& {
+            log << "[FastDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
+                << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
+            if (nextSampleSize >= 1)
+            {
+                log << "! Potential datagram version is " << static_cast<uint16_t>(nextSamplePayload[0])
+                    << "! Dropped sample!";
+            }
+
+            return log;
+        });
         return dropSample();
     }
 
@@ -188,17 +191,20 @@ iox::cxx::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::FastDataReader::p
 
     if (datagramHeader.datagramVersion != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
     {
-        LogError() << "[FastDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
-                   << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
-                   << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION) << "'! Dropped sample!";
+        IOX_LOG(ERROR,
+                "[FastDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
+                    << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
+                    << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
+                    << "'! Dropped sample!");
         return dropSample();
     }
 
     if (datagramHeader.endianness != getEndianess())
     {
-        LogError() << "[FastDataReader] received sample with incompatible endianess! Received '"
-                   << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
-                   << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!";
+        IOX_LOG(ERROR,
+                "[FastDataReader] received sample with incompatible endianess! Received '"
+                    << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
+                    << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!");
         return dropSample();
     }
 
