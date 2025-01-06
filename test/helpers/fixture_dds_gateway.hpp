@@ -37,7 +37,6 @@ class DDSGatewayTestFixture : public Test
     size_t m_mockIceoryxTerminalCursor = 0;
     size_t m_mockDDSTerminalMarker = 0;
 
-    void SetUp() {};
     void TearDown()
     {
         m_stagedMockIceoryxTerminal.clear();

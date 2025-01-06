@@ -40,7 +40,7 @@ eprosima::fastdds::dds::Topic* iox::dds::FastContext::getTopic(const std::string
     }
     else
     {
-        IOX_LOG(WARN, "[FastDataReader] Failed to find topic: " << topicName=;
+        IOX_LOG(WARN, "[FastDataReader] Failed to find topic: " << topicName);
     }
 
     topic = m_participant->create_topic(topicName, "Mempool::Chunk", eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);

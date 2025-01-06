@@ -42,7 +42,6 @@ if(NOT iceoryx_platform_FOUND OR NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOU
     FetchContent_Declare(
         iceoryx
         GIT_REPOSITORY https://github.com/eclipse-iceoryx/iceoryx.git
-        # Recent commit used here to be able to use the CMake macros. Change this to v3.x once released.
         GIT_TAG v2.95.3
     )
     FetchContent_GetProperties(iceoryx)
