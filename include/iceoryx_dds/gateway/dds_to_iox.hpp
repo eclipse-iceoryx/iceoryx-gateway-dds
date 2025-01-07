@@ -44,8 +44,8 @@ class DDS2IceoryxGateway : public gateway_t
   private:
     void* m_reservedChunk = nullptr;
 
-    cxx::expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
-                                                            const popo::PublisherOptions& publisherOptions) noexcept;
+    expected<channel_t, gw::GatewayError> setupChannel(const capro::ServiceDescription& service,
+                                                       const popo::PublisherOptions& publisherOptions) noexcept;
 };
 
 } // namespace dds

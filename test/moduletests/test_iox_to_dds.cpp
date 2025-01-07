@@ -19,12 +19,12 @@
 
 #include "iceoryx_dds/dds/data_writer.hpp"
 #include "iceoryx_dds/gateway/iox_to_dds.hpp"
-#include "iceoryx_hoofs/cxx/expected.hpp"
-#include "iceoryx_hoofs/cxx/optional.hpp"
 #include "iceoryx_posh/gateway/channel.hpp"
 #include "iceoryx_posh/gateway/gateway_config.hpp"
 #include "iceoryx_posh/internal/capro/capro_message.hpp"
 #include "iceoryx_posh/mepoo/chunk_header.hpp"
+#include "iox/expected.hpp"
+#include "iox/optional.hpp"
 
 #include "iceoryx_posh/testing/mocks/chunk_mock.hpp"
 #include "mocks/google_mocks.hpp"
@@ -67,7 +67,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForConfiguredServices)
     stageMockDDSTerminal(std::move(mockWriter));
 
     TestGateway gw{};
-    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::nullopt));
     EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
@@ -120,7 +120,7 @@ TEST_F(Iceoryx2DDSGatewayTest, ChannelsAreCreatedForDiscoveredServices)
     auto msg = iox::capro::CaproMessage(iox::capro::CaproMessageType::OFFER, testService);
     msg.m_serviceType = iox::capro::CaproServiceType::PUBLISHER;
 
-    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::cxx::nullopt_t()));
+    EXPECT_CALL(gw, findChannel(_)).WillOnce(Return(iox::nullopt));
     EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(channelFactory(testService, iox::popo::SubscriberOptions())));
 
     // === Test
@@ -249,13 +249,13 @@ TEST_F(Iceoryx2DDSGatewayTest, DestroysCorrespondingSubscriberWhenAPublisherStop
 
     TestGateway gw{};
     EXPECT_CALL(gw, findChannel(_))
-        .WillOnce(Return(iox::cxx::nullopt_t()))
+        .WillOnce(Return(iox::nullopt))
         .WillOnce(
-            Return(iox::cxx::make_optional<iox::gw::Channel<MockSubscriber,
+            Return(iox::make_optional<iox::gw::Channel<MockSubscriber,
             MockDataWriter>>(testChannelOne.value())))
-        .WillOnce(Return(iox::cxx::nullopt_t()));
+        .WillOnce(Return(iox::nullopt));
     EXPECT_CALL(gw, addChannel(_, _)).WillOnce(Return(testChannelOne)).WillOnce(Return(testChannelTwo));
-    EXPECT_CALL(gw, discardChannel(_)).WillOnce(Return(iox::cxx::success<>()));
+    EXPECT_CALL(gw, discardChannel(_)).WillOnce(Return(iox::ok()));
 
     // === Test
     gw.discover(offerMsg);

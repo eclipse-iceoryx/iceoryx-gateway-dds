@@ -19,9 +19,9 @@
 #define IOX_DDS_DDS_TO_IOX_INL
 
 #include "iceoryx_dds/dds/dds_config.hpp"
-#include "iceoryx_dds/internal/log/logging.hpp"
-#include "iceoryx_hoofs/cxx/string.hpp"
 #include "iceoryx_posh/capro/service_description.hpp"
+#include "iox/logging.hpp"
+#include "iox/string.hpp"
 
 namespace iox
 {
@@ -36,22 +36,23 @@ inline DDS2IceoryxGateway<channel_t, gateway_t>::DDS2IceoryxGateway() noexcept
 template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const config::GatewayConfig& config) noexcept
 {
-    LogDebug() << "[DDS2IceoryxGateway] Configuring gateway...";
+    IOX_LOG(DEBUG, "[DDS2IceoryxGateway] Configuring gateway...");
     for (const auto& service : config.m_configuredServices)
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
             auto serviceDescription = service.m_serviceDescription;
-            LogDebug() << "[DDS2IceoryxGateway] Setting up channel for service: {"
-                       << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
-                       << ", " << serviceDescription.getEventIDString() << "}";
+            IOX_LOG(DEBUG,
+                    "[DDS2IceoryxGateway] Setting up channel for service: {"
+                        << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
+                        << ", " << serviceDescription.getEventIDString() << "}");
             IOX_DISCARD_RESULT(setupChannel(serviceDescription, popo::PublisherOptions()));
         }
     }
 }
 
 template <typename channel_t, typename gateway_t>
-inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover(IOX_MAYBE_UNUSED const capro::CaproMessage& msg) noexcept
+inline void DDS2IceoryxGateway<channel_t, gateway_t>::discover([[maybe_unused]] const capro::CaproMessage& msg) noexcept
 {
     /// @note not implemented - requires dds discovery which is currently not implemented in the used dds stack.
 }
@@ -83,13 +84,14 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
                         .and_then([&]() { publisher->publish(userPayload); })
                         .or_else([&](DataReaderError err) {
                             publisher->release(userPayload);
-                            LogWarn() << "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
-                                      << dds::DataReaderErrorString[static_cast<uint8_t>(err)];
+                            IOX_LOG(WARN,
+                                    "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
+                                        << dds::DataReaderErrorString[static_cast<uint8_t>(err)]);
                         });
                 })
                 .or_else([](auto& error) {
-                    LogError() << "[DDS2IceoryxGateway] Could not loan chunk! Error code: "
-                               << static_cast<uint64_t>(error);
+                    IOX_LOG(ERROR,
+                            "[DDS2IceoryxGateway] Could not loan chunk! Error code: " << static_cast<uint64_t>(error));
                 });
             ;
         });
@@ -98,7 +100,7 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
 
 // ======================================== Private ======================================== //
 template <typename channel_t, typename gateway_t>
-cxx::expected<channel_t, gw::GatewayError>
+expected<channel_t, gw::GatewayError>
 DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescription& service,
                                                        const popo::PublisherOptions& publisherOptions) noexcept
 {
@@ -107,8 +109,10 @@ DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescr
         auto reader = channel.getExternalTerminal();
         publisher->offer();
         reader->connect();
-        iox::LogDebug() << "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
-                        << service.getInstanceIDString() << ", " << service.getEventIDString() << "}";
+        IOX_LOG(DEBUG,
+                "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
+                                                                    << service.getInstanceIDString() << ", "
+                                                                    << service.getEventIDString() << "}");
     });
 }
 

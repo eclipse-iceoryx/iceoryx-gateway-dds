@@ -16,7 +16,7 @@
 
 #include "iceoryx_dds/dds/fast_context.hpp"
 #include "MempoolPubSubTypes.h"
-#include "iceoryx_dds/internal/log/logging.hpp"
+#include "iox/logging.hpp"
 
 #include <fastdds/dds/domain/DomainParticipantFactory.hpp>
 
@@ -40,13 +40,13 @@ eprosima::fastdds::dds::Topic* iox::dds::FastContext::getTopic(const std::string
     }
     else
     {
-        LogWarn() << "[FastDataReader] Failed to find topic: " << topicName;
+        IOX_LOG(WARN, "[FastDataReader] Failed to find topic: " << topicName);
     }
 
     topic = m_participant->create_topic(topicName, "Mempool::Chunk", eprosima::fastdds::dds::TOPIC_QOS_DEFAULT);
     if (topic == nullptr)
     {
-        LogError() << "[FastDataReader] Failed to create topic: " << topicName;
+        IOX_LOG(ERROR, "[FastDataReader] Failed to create topic: " << topicName);
     }
 
     return topic;
@@ -58,7 +58,7 @@ iox::dds::FastContext::FastContext()
     m_participant = factory->create_participant(0, eprosima::fastdds::dds::PARTICIPANT_QOS_DEFAULT);
     if (m_participant == nullptr)
     {
-        LogError() << "[FastContext] Failed to create participant";
+        IOX_LOG(ERROR, "[FastContext] Failed to create participant");
         return;
     }
 
