@@ -28,9 +28,8 @@ sudo apt install cmake bison
 You can use the standard iceoryx cmake build approach with an activated `-DDDS_STACK=CYCLONE_DDS`
 or `-DDDS_STACK=FAST_DDS` switch.
 ```sh
-cmake -Bbuild -DBUILD_TEST=ON -DDDS_STACK=CYCLONE_DDS # DDDS_STACK=FAST_DDS
-cd build
-make
+cmake -Bbuild -DBUILD_TEST=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DDDS_STACK=CYCLONE_DDS # -DDDS_STACK=FAST_DDS
+cmake --build build -- -j$(nproc)
 ```
 
 # Usage
@@ -54,8 +53,8 @@ In this example we would like to offer or subscribe to the two services
 and to one service `larry_robotics.SystemMonitor.larry_info` from our 
 [larry demonstrator](https://gitlab.com/larry.robotics/larry.robotics).
 
-## Running icedelivery via CycloneDDS
-We can use CycloneDDS to run our [icedelivery example](../iceoryx_examples/icedelivery) 
+## Running icedelivery via CycloneDDS or FastDDS
+We can use CycloneDDS or FastDDS to run our [icedelivery example](../iceoryx_examples/icedelivery) 
 via a local area network. First we have to adjust the gateway configuration file 
 in `/etc/iceoryx/gateway_config.toml` and have to add the publisher service description
 from our example.
@@ -95,5 +94,3 @@ e.g.
 ```bash
 $INSTALL_DIR/bin/iox-dds-gateway
 ```
-
-

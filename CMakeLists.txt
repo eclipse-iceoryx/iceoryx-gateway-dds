@@ -102,6 +102,8 @@ if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
 elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/fastdds ${CMAKE_BINARY_DIR}/dependencies/fastdds/prebuild)
     message(INFO " Using FastDDS stack")
+    find_package(fastcdr CONFIG REQUIRED)
+    find_package(foonathan_memory CONFIG REQUIRED)
     find_package(fastrtps CONFIG REQUIRED)
 endif()
 
@@ -207,6 +209,8 @@ elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     target_link_libraries(iceoryx_dds
         PUBLIC
         fastrtps
+        fastcdr
+        foonathan_memory
         iceoryx_hoofs::iceoryx_hoofs
     )
 endif()
