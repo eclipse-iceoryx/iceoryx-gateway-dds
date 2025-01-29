@@ -20,7 +20,7 @@ project(fastddsgen-download NONE)
 include(ExternalProject)
 ExternalProject_Add(ext_fastddsgen
   GIT_REPOSITORY    https://github.com/eProsima/Fast-DDS-Gen.git
-  GIT_TAG           1b82d294c8947b01babd1e1c647cea1b49b3563a # Tag v2.5.2
+  GIT_TAG           v2.5.2
   SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/fastddsgen/src"
   BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/fastddsgen/build"
   CONFIGURE_COMMAND ""

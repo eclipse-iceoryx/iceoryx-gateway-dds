@@ -26,6 +26,9 @@ find_package(iceoryx_posh QUIET)
 # Link iceoryx_hoofs and iceoryx_posh libraries statically
 option(BUILD_SHARED_LIBS "Link libraries dynamically" OFF)
 
+# Create compile_commands.json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # fetch iceoryx if not found
 if(NOT iceoryx_platform_FOUND OR NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND)
     if(iceoryx_platform_FOUND)

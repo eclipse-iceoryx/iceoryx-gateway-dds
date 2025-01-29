@@ -20,7 +20,7 @@ project(fastcdr-download NONE)
 include(ExternalProject)
 ExternalProject_Add(ext_fastcdr
   GIT_REPOSITORY    https://github.com/eProsima/Fast-CDR.git
-  GIT_TAG           7ebc45e03e1dd010681f5594135edbdcf3556c50 # Tag v1.0.28
+  GIT_TAG           v1.0.28
   SOURCE_DIR        "${CMAKE_BINARY_DIR}/dependencies/fastcdr/src"
   BINARY_DIR        "${CMAKE_BINARY_DIR}/dependencies/fastcdr/build"
   CONFIGURE_COMMAND ""
