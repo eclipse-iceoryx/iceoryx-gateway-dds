@@ -133,6 +133,6 @@ endfunction()
 
 cmake_fetch_and_install(foonathan_memory_vendor -DBUILD_SHARED_LIBS=ON)
 cmake_fetch_and_install(fastcdr)
-cmake_fetch_and_install(fastdds)
+cmake_fetch_and_install(fastdds -DTHIRDPARTY=ON)
 
 gradlew_fetch_and_install(fastddsgen)

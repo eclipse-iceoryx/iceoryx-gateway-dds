@@ -11,11 +11,23 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-ubuntu:
+  build-ubuntu-cyclone-dds:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Install dependencies
         run: sudo apt update && sudo apt install -y libacl1-dev libncurses5-dev
       - name: Build
-        run: cmake -DBUILD_TEST=ON -B build && cmake --build build -- -j$(nproc) && ./build/dds_gateway/test/dds_gateway_moduletests
+        run: cmake -Bbuild -DBUILD_TEST=ON -DDDS_STACK=CYCLONE_DDS && cmake --build build -- -j$(nproc)
+      - name: Module tests
+        run: ./build/dds_gateway/test/dds_gateway_moduletests
+  build-ubuntu-fast-dds:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y libacl1-dev libncurses5-dev
+      - name: Build
+        run: cmake -Bbuild -DBUILD_TEST=ON -DDDS_STACK=FAST_DDS && cmake --build build -- -j$(nproc)
+      - name: Module tests
+        run: LD_LIBRARY_PATH=./build/dependencies/install/lib ./build/dds_gateway/test/dds_gateway_moduletests

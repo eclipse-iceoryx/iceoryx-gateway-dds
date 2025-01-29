@@ -26,6 +26,9 @@ find_package(iceoryx_posh QUIET)
 # Link iceoryx_hoofs and iceoryx_posh libraries statically
 option(BUILD_SHARED_LIBS "Link libraries dynamically" OFF)
 
+# Create compile_commands.json file
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # fetch iceoryx if not found
 if(NOT iceoryx_platform_FOUND OR NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOUND)
     if(iceoryx_platform_FOUND)
@@ -102,6 +105,8 @@ if(${DDS_STACK} STREQUAL "CYCLONE_DDS")
 elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/fastdds ${CMAKE_BINARY_DIR}/dependencies/fastdds/prebuild)
     message(INFO " Using FastDDS stack")
+    find_package(fastcdr CONFIG REQUIRED)
+    find_package(foonathan_memory CONFIG REQUIRED)
     find_package(fastrtps CONFIG REQUIRED)
 endif()
 
@@ -207,6 +212,8 @@ elseif(${DDS_STACK} STREQUAL "FAST_DDS")
     target_link_libraries(iceoryx_dds
         PUBLIC
         fastrtps
+        fastcdr
+        foonathan_memory
         iceoryx_hoofs::iceoryx_hoofs
     )
 endif()
