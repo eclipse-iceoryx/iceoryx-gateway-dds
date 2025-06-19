@@ -45,7 +45,7 @@ if(NOT iceoryx_platform_FOUND OR NOT iceoryx_hoofs_FOUND OR NOT iceoryx_posh_FOU
     FetchContent_Declare(
         iceoryx
         GIT_REPOSITORY https://github.com/eclipse-iceoryx/iceoryx.git
-        GIT_TAG v2.95.3
+        GIT_TAG v2.95.5
     )
     FetchContent_GetProperties(iceoryx)
     if (NOT iceoryx_POPULATED)

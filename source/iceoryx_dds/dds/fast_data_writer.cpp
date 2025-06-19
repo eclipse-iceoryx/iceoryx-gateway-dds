@@ -31,7 +31,7 @@ iox::dds::FastDataWriter::FastDataWriter(const capro::IdString_t& serviceId,
     , m_instanceId(instanceId)
     , m_eventId(eventId)
 {
-    IOX_LOG(DEBUG, "[FastDataWriter] Created FastDataWriter.");
+    IOX_LOG(Debug, "[FastDataWriter] Created FastDataWriter.");
 }
 
 iox::dds::FastDataWriter::~FastDataWriter()
@@ -48,7 +48,7 @@ iox::dds::FastDataWriter::~FastDataWriter()
     {
         FastContext::getInstance().getParticipant()->delete_publisher(m_publisher);
     }
-    IOX_LOG(DEBUG, "[FastDataWriter] Destroyed FastDataWriter.");
+    IOX_LOG(Debug, "[FastDataWriter] Destroyed FastDataWriter.");
 }
 
 void iox::dds::FastDataWriter::connect() noexcept
@@ -56,14 +56,14 @@ void iox::dds::FastDataWriter::connect() noexcept
     auto participant = FastContext::getInstance().getParticipant();
     if (participant == nullptr)
     {
-        IOX_LOG(ERROR, "[FastDataWriter] Failed to get participant");
+        IOX_LOG(Error, "[FastDataWriter] Failed to get participant");
         return;
     }
 
     m_publisher = participant->create_publisher(eprosima::fastdds::dds::PUBLISHER_QOS_DEFAULT);
     if (m_publisher == nullptr)
     {
-        IOX_LOG(ERROR, "[FastDataWriter] Failed to create publisher");
+        IOX_LOG(Error, "[FastDataWriter] Failed to create publisher");
         return;
     }
 
@@ -72,18 +72,18 @@ void iox::dds::FastDataWriter::connect() noexcept
     m_topic = FastContext::getInstance().getTopic(topic);
     if (m_topic == nullptr)
     {
-        IOX_LOG(ERROR, "[FastDataReader] Failed to get topic: " << topic);
+        IOX_LOG(Error, "[FastDataReader] Failed to get topic: " << topic);
         return;
     }
 
     m_writer = m_publisher->create_datawriter(m_topic, eprosima::fastdds::dds::DATAWRITER_QOS_DEFAULT);
     if (m_writer == nullptr)
     {
-        IOX_LOG(ERROR, "[FastDataWriter] Failed to create datawriter");
+        IOX_LOG(Error, "[FastDataWriter] Failed to create datawriter");
         return;
     }
 
-    IOX_LOG(DEBUG, "[FastDataWriter] Connected to topic: " << topic);
+    IOX_LOG(Debug, "[FastDataWriter] Connected to topic: " << topic);
 }
 
 void iox::dds::FastDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHeader,
@@ -93,12 +93,12 @@ void iox::dds::FastDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHe
     if (datagramHeader.userHeaderSize > 0
         && (datagramHeader.userHeaderId == iox::mepoo::ChunkHeader::NO_USER_HEADER || userHeaderBytes == nullptr))
     {
-        IOX_LOG(ERROR, "[FastDataWriter] invalid user-header parameter! Dropping chunk!");
+        IOX_LOG(Error, "[FastDataWriter] invalid user-header parameter! Dropping chunk!");
         return;
     }
     if (datagramHeader.userPayloadSize > 0 && userPayloadBytes == nullptr)
     {
-        IOX_LOG(ERROR, "[FastDataWriter] invalid user-payload parameter! Dropping chunk!");
+        IOX_LOG(Error, "[FastDataWriter] invalid user-payload parameter! Dropping chunk!");
         return;
     }
 
@@ -127,7 +127,7 @@ void iox::dds::FastDataWriter::write(iox::dds::IoxChunkDatagramHeader datagramHe
 
     if (!m_writer->write(&chunk))
     {
-        IOX_LOG(ERROR, "[FastDataWriter] Failed to write chunk");
+        IOX_LOG(Error, "[FastDataWriter] Failed to write chunk");
     }
 }
 

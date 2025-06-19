@@ -29,12 +29,12 @@ iox::dds::CycloneDataReader::CycloneDataReader(const capro::IdString_t serviceId
     , m_instanceId(instanceId)
     , m_eventId(eventId)
 {
-    IOX_LOG(DEBUG, "[CycloneDataReader] Created CycloneDataReader.");
+    IOX_LOG(Debug, "[CycloneDataReader] Created CycloneDataReader.");
 }
 
 iox::dds::CycloneDataReader::~CycloneDataReader()
 {
-    IOX_LOG(DEBUG, "[CycloneDataReader] Destroyed CycloneDataReader.");
+    IOX_LOG(Debug, "[CycloneDataReader] Destroyed CycloneDataReader.");
 }
 
 void iox::dds::CycloneDataReader::connect() noexcept
@@ -62,7 +62,7 @@ void iox::dds::CycloneDataReader::connect() noexcept
 
         m_impl = ::dds::sub::DataReader<Mempool::Chunk>(subscriber, topic, qos);
 
-        IOX_LOG(DEBUG, "[CycloneDataReader] Connected to topic: " << topicString);
+        IOX_LOG(Debug, "[CycloneDataReader] Connected to topic: " << topicString);
 
         m_isConnected.store(true, std::memory_order_relaxed);
         free(cqos);
@@ -93,14 +93,14 @@ iox::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::pee
     // Ignore samples with no payload
     if (nextSampleSize == 0)
     {
-        IOX_LOG(ERROR, "[CycloneDataReader] received sample with size zero! Dropped sample!");
+        IOX_LOG(Error, "[CycloneDataReader] received sample with size zero! Dropped sample!");
         return dropSample();
     }
 
     // Ignore Invalid IoxChunkDatagramHeader
     if (nextSampleSize < sizeof(iox::dds::IoxChunkDatagramHeader))
     {
-        IOX_LOG(ERROR, [&](auto& log) -> auto& {
+        IOX_LOG(Error, [&](auto& log) -> auto& {
             log << "[CycloneDataReader] invalid sample size! Must be at least sizeof(IoxChunkDatagramHeader) = "
                 << sizeof(iox::dds::IoxChunkDatagramHeader) << " but got " << nextSampleSize;
             if (nextSampleSize >= 1)
@@ -124,7 +124,7 @@ iox::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::pee
 
     if (datagramHeader.datagramVersion != iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "[CycloneDataReader] received sample with incompatible IoxChunkDatagramHeader version! Received '"
                     << static_cast<uint16_t>(datagramHeader.datagramVersion) << "', expected '"
                     << static_cast<uint16_t>(iox::dds::IoxChunkDatagramHeader::DATAGRAM_VERSION)
@@ -134,7 +134,7 @@ iox::optional<iox::dds::IoxChunkDatagramHeader> iox::dds::CycloneDataReader::pee
 
     if (datagramHeader.endianness != getEndianess())
     {
-        IOX_LOG(ERROR,
+        IOX_LOG(Error,
                 "[CycloneDataReader] received sample with incompatible endianess! Received '"
                     << EndianessString[static_cast<uint64_t>(datagramHeader.endianness)] << "', expected '"
                     << EndianessString[static_cast<uint64_t>(getEndianess())] << "'! Dropped sample!");
