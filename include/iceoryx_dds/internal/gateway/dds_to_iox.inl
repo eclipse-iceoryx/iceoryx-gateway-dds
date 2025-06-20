@@ -36,13 +36,13 @@ inline DDS2IceoryxGateway<channel_t, gateway_t>::DDS2IceoryxGateway() noexcept
 template <typename channel_t, typename gateway_t>
 inline void DDS2IceoryxGateway<channel_t, gateway_t>::loadConfiguration(const config::GatewayConfig& config) noexcept
 {
-    IOX_LOG(DEBUG, "[DDS2IceoryxGateway] Configuring gateway...");
+    IOX_LOG(Debug, "[DDS2IceoryxGateway] Configuring gateway...");
     for (const auto& service : config.m_configuredServices)
     {
         if (!this->findChannel(service.m_serviceDescription).has_value())
         {
             auto serviceDescription = service.m_serviceDescription;
-            IOX_LOG(DEBUG,
+            IOX_LOG(Debug,
                     "[DDS2IceoryxGateway] Setting up channel for service: {"
                         << serviceDescription.getServiceIDString() << ", " << serviceDescription.getInstanceIDString()
                         << ", " << serviceDescription.getEventIDString() << "}");
@@ -84,13 +84,13 @@ inline void DDS2IceoryxGateway<channel_t, gateway_t>::forward(const channel_t& c
                         .and_then([&]() { publisher->publish(userPayload); })
                         .or_else([&](DataReaderError err) {
                             publisher->release(userPayload);
-                            IOX_LOG(WARN,
+                            IOX_LOG(Warn,
                                     "[DDS2IceoryxGateway] Encountered error reading from DDS network: "
                                         << dds::DataReaderErrorString[static_cast<uint8_t>(err)]);
                         });
                 })
                 .or_else([](auto& error) {
-                    IOX_LOG(ERROR,
+                    IOX_LOG(Error,
                             "[DDS2IceoryxGateway] Could not loan chunk! Error code: " << static_cast<uint64_t>(error));
                 });
             ;
@@ -109,7 +109,7 @@ DDS2IceoryxGateway<channel_t, gateway_t>::setupChannel(const capro::ServiceDescr
         auto reader = channel.getExternalTerminal();
         publisher->offer();
         reader->connect();
-        IOX_LOG(DEBUG,
+        IOX_LOG(Debug,
                 "[DDS2IceoryxGateway] Setup channel for service: {" << service.getServiceIDString() << ", "
                                                                     << service.getInstanceIDString() << ", "
                                                                     << service.getEventIDString() << "}");
